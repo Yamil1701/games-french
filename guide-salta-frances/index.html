@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#f4efe6">
+  <title>Guide Salta — Français pour touristes</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="index.html" aria-label="Guide Salta inicio">
+        <span class="brand-mark">GS</span>
+        <span>
+          <strong>Guide Salta</strong>
+          <small>Français pour guider les touristes</small>
+        </span>
+      </a>
+
+      <div class="top-actions">
+        <button class="icon-btn" id="audioSettingsBtn" title="Configurar pronunciación">🔊</button>
+        <button class="icon-btn" id="exploreBtn" title="Explorar mapa">🗺️</button>
+      </div>
+    </header>
+
+    <section id="homeScreen" class="home-screen">
+      <div class="home-copy">
+        <span class="eyebrow">SALTA CAPITAL · FRANCÉS INICIAL</span>
+        <h1>Ayudá a turistas a encontrar su camino.</h1>
+        <p>Aprendé direcciones, lugares, distancias y transporte con un croquis turístico interactivo.</p>
+      </div>
+
+      <div class="level-grid" id="levelGrid"></div>
+
+      <button class="freewalk-card" id="freeWalkBtn">
+        <span class="freewalk-icon">🧳</span>
+        <span>
+          <b>Promenade libre</b>
+          <small>Elegí dos lugares y mirá cómo se construye el recorrido en francés.</small>
+        </span>
+        <span class="arrow">→</span>
+      </button>
+    </section>
+
+    <section id="gameScreen" class="game-screen hidden">
+      <div class="game-grid">
+        <section class="map-panel card">
+          <div class="map-toolbar">
+            <div>
+              <span class="mini-label">CROQUIS TURÍSTICO</span>
+              <h2>Centro de Salta</h2>
+            </div>
+            <div class="map-toolbar-right">
+              <span class="north">N ↑</span>
+              <button class="soft-btn" id="resetMapBtn">Centrar</button>
+            </div>
+          </div>
+
+          <div class="map-wrap" id="mapWrap">
+            <object id="mapObject" data="assets/map/salta-centro.svg" type="image/svg+xml" aria-label="Croquis turístico de Salta"></object>
+
+            <svg class="route-overlay" id="routeOverlay" viewBox="0 0 1000 760" preserveAspectRatio="none" aria-hidden="true">
+              <polyline id="routeLine" points="" />
+            </svg>
+
+            <div class="suitcase-marker" id="suitcaseMarker">
+              <span class="suitcase-bubble">🧳</span>
+              <span class="suitcase-tag">Nous sommes ici</span>
+            </div>
+
+            <div class="destination-marker" id="destinationMarker">
+              <span>★</span>
+              <small>Destination</small>
+            </div>
+          </div>
+
+          <div class="map-legend">
+            <span><i class="legend-dot here"></i> Vous êtes ici</span>
+            <span><i class="legend-dot dest"></i> Destination</span>
+            <span><i class="legend-line"></i> Trajet</span>
+          </div>
+
+          <div class="walk-steps hidden" id="walkSteps">
+            <div class="walk-steps-title">🚶 Recorrido</div>
+            <div class="walk-steps-list" id="walkStepsList"></div>
+          </div>
+        </section>
+
+        <aside class="quiz-panel card">
+          <div class="quiz-head">
+            <button class="back-btn" id="backHomeBtn">← Niveles</button>
+            <span id="levelBadge" class="level-badge"></span>
+          </div>
+
+          <div class="progress-row">
+            <div class="progress"><div id="progressFill"></div></div>
+            <span id="progressText">1 / 10</span>
+          </div>
+
+          <section class="tourist-question">
+            <div class="question-title-row">
+              <span class="question-label">🗣️ LE TOURISTE</span>
+              <button class="listen-btn" id="listenBtn">🔊 Escuchar</button>
+            </div>
+            <p id="questionText" class="question-text"></p>
+            <button class="translation-toggle" id="translationToggle">🇪🇸 Ver traducción</button>
+            <p id="translationText" class="translation-text hidden"></p>
+          </section>
+
+          <div class="mission-chips">
+            <span class="mission-chip route-chip" id="routeChip"></span>
+            <span class="mission-chip distance-chip" id="distanceChip"></span>
+            <span class="mission-chip transport-chip" id="transportChip"></span>
+            <span class="mission-chip proximity-chip" id="proximityChip"></span>
+          </div>
+
+          <section class="answer-area">
+            <div class="answer-heading">
+              <span>¿Qué le responderías?</span>
+              <span id="scoreText">⭐ 0</span>
+            </div>
+            <div id="answers" class="answers"></div>
+          </section>
+
+          <div id="feedback" class="feedback">
+            Mirá dónde está la valijita y dónde está el destino.
+          </div>
+
+          <div class="quiz-actions">
+            <button class="soft-btn" id="hintBtn">💡 Pista</button>
+            <button class="soft-btn" id="helpBtn">📖 Ayuda</button>
+            <button class="primary-btn" id="nextBtn" disabled>Siguiente →</button>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="freeWalkScreen" class="game-screen hidden">
+      <div class="game-grid">
+        <section class="map-panel card">
+          <div class="map-toolbar">
+            <div>
+              <span class="mini-label">PROMENADE LIBRE</span>
+              <h2>Explorá el centro</h2>
+            </div>
+            <button class="soft-btn" id="freeBackBtn">← Inicio</button>
+          </div>
+
+          <div class="map-wrap">
+            <object data="assets/map/salta-centro.svg" type="image/svg+xml" aria-label="Croquis turístico de Salta"></object>
+            <svg class="route-overlay" id="freeRouteOverlay" viewBox="0 0 1000 760" preserveAspectRatio="none" aria-hidden="true">
+              <polyline id="freeRouteLine" points="" />
+            </svg>
+            <div class="suitcase-marker" id="freeSuitcase">
+              <span class="suitcase-bubble">🧳</span>
+              <span class="suitcase-tag">Départ</span>
+            </div>
+            <div class="destination-marker" id="freeDestination">
+              <span>★</span><small>Arrivée</small>
+            </div>
+          </div>
+        </section>
+
+        <aside class="quiz-panel card free-panel">
+          <span class="mini-label">CONSTRUIRE UN TRAJET</span>
+          <h2>¿Desde dónde hasta dónde?</h2>
+          <p class="muted">Elegí dos puntos y generamos una indicación sencilla en francés.</p>
+
+          <label class="field-label" for="freeFrom">Depuis · Desde</label>
+          <select id="freeFrom" class="select"></select>
+
+          <label class="field-label" for="freeTo">Jusqu'à · Hasta</label>
+          <select id="freeTo" class="select"></select>
+
+          <button class="primary-btn full" id="buildRouteBtn">Construir recorrido</button>
+
+          <div class="free-result hidden" id="freeResult">
+            <span class="question-label">ITINÉRAIRE</span>
+            <p id="freePhrase"></p>
+            <div class="free-walk-steps" id="freeWalkSteps"></div>
+            <div class="free-result-actions">
+              <button class="listen-btn" id="freeListenBtn">🔊 Escuchar</button>
+              <button class="soft-btn" id="freeSlowBtn">🐢 Más lento</button>
+            </div>
+          </div>
+
+          <div class="tip-card">
+            <b>Vocabulaire</b>
+            <span><strong>depuis</strong> — desde</span>
+            <span><strong>jusqu'à</strong> — hasta</span>
+            <span><strong>tout droit</strong> — todo derecho</span>
+            <span><strong>tournez</strong> — doble / gire</span>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <!-- Modal ayuda contextual -->
+  <dialog class="modal" id="helpModal">
+    <form method="dialog" class="modal-card">
+      <button class="modal-close" value="close" aria-label="Cerrar">×</button>
+      <span class="mini-label">POUR CETTE MISSION</span>
+      <h2>Ayuda rápida</h2>
+      <div id="helpContent" class="help-list"></div>
+      <button class="primary-btn full" value="close">Entendido</button>
+    </form>
+  </dialog>
+
+  <!-- Modal explorar -->
+  <dialog class="modal wide-modal" id="exploreModal">
+    <form method="dialog" class="modal-card">
+      <button class="modal-close" value="close" aria-label="Cerrar">×</button>
+      <span class="mini-label">CARTE INTERACTIVE</span>
+      <h2>Explorar lugares</h2>
+      <p class="muted">Tocá un lugar para ver cómo ubicarlo en francés.</p>
+      <div id="explorePlaces" class="explore-grid"></div>
+      <div id="placeDetail" class="place-detail">
+        Seleccioná un lugar.
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Modal resultados -->
+  <dialog class="modal" id="resultModal">
+    <form method="dialog" class="modal-card result-card">
+      <span class="result-icon">🧳</span>
+      <span class="mini-label">MISSION ACCOMPLIE</span>
+      <h2 id="resultTitle">Nivel terminado</h2>
+      <div id="resultScore" class="big-score"></div>
+      <div id="resultStars" class="result-stars"></div>
+      <p id="resultCopy" class="muted"></p>
+      <div class="result-actions">
+        <button class="soft-btn" id="repeatBtn" value="cancel">↻ Repetir</button>
+        <button class="primary-btn" id="nextLevelBtn" value="cancel">Siguiente nivel →</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Modal audio -->
+  <dialog class="modal" id="audioModal">
+    <form method="dialog" class="modal-card">
+      <button class="modal-close" value="close" aria-label="Cerrar">×</button>
+      <span class="mini-label">PRONONCIATION</span>
+      <h2>Voz francesa</h2>
+      <p id="audioStatus" class="audio-status"></p>
+      <label class="field-label" for="voiceSelect">Voz detectada</label>
+      <select id="voiceSelect" class="select"></select>
+      <div class="audio-note">
+        La app <b>no usa voces en español o inglés como reemplazo</b>. Si tu equipo no tiene una voz francesa, el botón Escuchar no reproducirá audio incorrecto.
+      </div>
+      <button class="primary-btn full" value="close">Guardar</button>
+    </form>
+  </dialog>
+
+  <script src="js/data.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/map.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
