@@ -1,1 +1,0 @@
-This branch changes Guide Salta to prioritize street-based directions and corrects the schematic location of San Francisco.
