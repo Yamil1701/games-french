@@ -1,12 +1,36 @@
+// Guide Salta — mapa central verificado.
+// Fuentes de referencia usadas para el croquis:
+// - Mapa oficial Salta Ciudad (actualización abril 2024).
+// - Turismo Ciudad de Salta: Plaza 9 de Julio entre Mitre, España, Zuviría y Caseros.
+// - Direcciones oficiales: Catedral España 558; MAAM Mitre 77; Teatro Zuviría 70;
+//   Cabildo Caseros 549; Basílica San Francisco Córdoba 33 y Caseros.
+// El croquis es didáctico y no está a escala.
+
 const PLACES = {
-  catedral:   { name:"Catedral Basílica", short:"Catedral", x:500, y:135, relation:"au nord de la Plaza", street:"España" },
-  maam:       { name:"MAAM", short:"MAAM", x:250, y:390, relation:"à l'ouest de la Plaza", street:"Mitre" },
-  plaza:      { name:"Plaza 9 de Julio", short:"Plaza", x:500, y:405, relation:"au centre historique", street:"Plaza 9 de Julio" },
-  teatro:     { name:"Teatro Provincial", short:"Teatro", x:760, y:390, relation:"à l'est de la Plaza", street:"Zuviría" },
-  cabildo:    { name:"Cabildo Histórico", short:"Cabildo", x:500, y:650, relation:"au sud de la Plaza", street:"Caseros" },
-  sanfran:    { name:"Basílica San Francisco", short:"San Francisco", x:855, y:565, relation:"à l'est du centre", street:"Caseros" },
-  mercado:    { name:"Mercado San Miguel", short:"Mercado", x:190, y:650, relation:"au sud-ouest de la Plaza", street:"San Martín" },
-  teleferico: { name:"Teleférico San Bernardo", short:"Teleférico", x:900, y:240, relation:"à l'est du centre", street:"San Martín" }
+  catedral: {
+    name:"Catedral Basílica", short:"Catedral", x:385, y:150,
+    relation:"sur la rue España, en face de la Plaza", street:"España", address:"España 558"
+  },
+  maam: {
+    name:"MAAM", short:"MAAM", x:205, y:340,
+    relation:"sur la rue Mitre, à côté de la Plaza", street:"Mitre", address:"Mitre 77"
+  },
+  plaza: {
+    name:"Plaza 9 de Julio", short:"Plaza", x:385, y:340,
+    relation:"entre Mitre, España, Zuviría et Caseros", street:"Plaza 9 de Julio", address:"Centro histórico"
+  },
+  teatro: {
+    name:"Teatro Provincial", short:"Teatro", x:555, y:340,
+    relation:"sur la rue Zuviría, à côté de la Plaza", street:"Zuviría", address:"Zuviría 70"
+  },
+  cabildo: {
+    name:"Cabildo Histórico", short:"Cabildo", x:385, y:525,
+    relation:"sur la rue Caseros, en face de la Plaza", street:"Caseros", address:"Caseros 549"
+  },
+  sanfran: {
+    name:"Basílica San Francisco", short:"San Francisco", x:870, y:390,
+    relation:"à l'angle de Córdoba et Caseros", street:"Córdoba / Caseros", address:"Córdoba 33 y Caseros"
+  }
 };
 
 const TRANSPORT = {
@@ -35,15 +59,17 @@ const VOCAB = {
   "à l'ouest de":"al oeste de",
   "jusqu'à":"hasta",
   "depuis":"desde",
-  "traversez":"cruce",
+  "traversez":"cruce / atraviese",
   "continuez":"continúe",
   "tournez":"doble / gire",
+  "prenez la rue":"tome la calle",
+  "suivez la rue":"siga por la calle",
+  "au coin de":"en la esquina de",
   "à environ":"aproximadamente",
   "à pied":"a pie",
   "en bus":"en colectivo",
   "en taxi":"en taxi",
   "à vélo":"en bicicleta",
-  "au coin de":"en la esquina de",
   "le long de":"a lo largo de",
   "avant":"antes de",
   "après":"después de"
@@ -62,86 +88,78 @@ function interpret({from,to,meters=150,transport="walk",proximity="près",questi
 const LEVELS = [
 {
   title:"Premiers pas",
-  subtitle:"Derecha, izquierda y todo derecho",
-  description:"Aprendé las expresiones más básicas para empezar a orientar a alguien.",
-  tags:["tout droit","gauche / droite"],
+  subtitle:"Seguir calles y cruzar",
+  description:"Empezá a orientar usando calles concretas, esquinas y la Plaza como referencia.",
+  tags:["suivez la rue","traversez"],
   questions:[
-    mc({from:"plaza",to:"catedral",meters:120,question:"Excusez-moi, où est la cathédrale ?",translation:"Disculpe, ¿dónde está la catedral?",correct:"Elle est tout près, au nord de la Plaza.",wrong:["Elle est très loin, derrière le marché.","Elle est à l'ouest du MAAM."],hint:"El destino está arriba de la Plaza.",help:["tout près","au nord de"]}),
-    fill({from:"catedral",to:"maam",meters:180,question:"Comment aller au MAAM ?",translation:"¿Cómo voy al MAAM?",prompt:"Allez ___ .",choices:["à gauche","à droite","tout droit"],correct:0,hint:"El MAAM está hacia la izquierda.",help:["à gauche","à droite"]}),
-    interpret({from:"maam",to:"plaza",meters:100,question:"La Plaza est de quel côté ?",translation:"¿De qué lado está la Plaza?",correct:"Elle est à droite.",wrong:["Elle est à gauche.","Elle est derrière le Cabildo."],hint:"Mirá la valijita en el MAAM y la estrella en la Plaza.",help:["à droite","à gauche"]}),
-    mc({from:"plaza",to:"teatro",meters:170,question:"Le théâtre, s'il vous plaît ?",translation:"El teatro, por favor.",correct:"Allez à droite, il est à l'est de la Plaza.",wrong:["Allez à gauche jusqu'au MAAM.","Continuez vers le sud jusqu'au Cabildo."],hint:"El teatro está del lado derecho.",help:["à droite","à l'est de"]}),
-    fill({from:"cabildo",to:"plaza",meters:120,question:"Comment revenir à la Plaza ?",translation:"¿Cómo vuelvo a la Plaza?",prompt:"Allez ___ .",choices:["vers le nord","vers le sud","à l'est"],correct:0,hint:"La Plaza está arriba del Cabildo.",help:["au nord de"]}),
-    mc({from:"teatro",to:"sanfran",meters:360,question:"San Francisco est loin ?",translation:"¿San Francisco está lejos?",correct:"Non, c'est assez près.",wrong:["Oui, c'est à dix kilomètres.","Oui, c'est dans une autre ville."],hint:"El recorrido es corto.",help:["assez près","loin de"]}),
-    interpret({from:"teleferico",to:"sanfran",meters:330,question:"Où est San Francisco ?",translation:"¿Dónde está San Francisco?",correct:"Plus au sud.",wrong:["Plus au nord.","À l'ouest du MAAM."],hint:"La estrella está debajo de la valijita.",help:["au sud de","au nord de"]}),
-    mc({from:"plaza",to:"mercado",meters:620,question:"Le marché est loin d'ici ?",translation:"¿El mercado está lejos de acá?",correct:"Non, on peut y aller à pied.",wrong:["Oui, il faut prendre l'avion.","Il est à côté de la cathédrale."],hint:"Está a varias cuadras, pero se puede caminar.",help:["à pied","loin de"]}),
-    fill({from:"mercado",to:"cabildo",meters:310,question:"Le Cabildo est où ?",translation:"¿Dónde está el Cabildo?",prompt:"Allez ___ .",choices:["à droite","à gauche","vers le nord"],correct:0,hint:"El Cabildo está a la derecha del Mercado.",help:["à droite","à gauche"]}),
-    mc({from:"catedral",to:"plaza",meters:120,question:"La Plaza est près d'ici ?",translation:"¿La Plaza está cerca de acá?",correct:"Oui, elle est tout près.",wrong:["Non, elle est très loin.","Non, elle est derrière le téléphérique."],hint:"Es uno de los trayectos más cortos del mapa.",help:["tout près","près de"]})
+    mc({from:"catedral",to:"maam",meters:180,question:"Excusez-moi, comment aller au MAAM ?",translation:"Disculpe, ¿cómo voy al MAAM?",correct:"Suivez la rue España jusqu'à Mitre, puis prenez la rue Mitre vers la Plaza.",wrong:["Suivez la rue España jusqu'à Zuviría, puis prenez la rue Zuviría vers la Plaza.","Suivez la rue España jusqu'à Córdoba, puis prenez la rue Córdoba vers Caseros."],hint:"Desde la Catedral, el MAAM está sobre Mitre.",help:["suivez la rue","jusqu'à","prenez la rue"]}),
+    mc({from:"catedral",to:"cabildo",meters:190,question:"Comment aller au Cabildo ?",translation:"¿Cómo voy al Cabildo?",correct:"Traversez la rue España, traversez la Plaza 9 de Julio et continuez jusqu'à Caseros.",wrong:["Traversez la rue España, longez la Plaza par Mitre et continuez jusqu'à Zuviría.","Traversez la rue España, prenez la rue Zuviría et continuez jusqu'à Córdoba."],hint:"El Cabildo está enfrente de la Plaza, sobre Caseros.",help:["traversez","jusqu'à","en face de"]}),
+    mc({from:"plaza",to:"maam",meters:90,question:"Où est le MAAM depuis la Plaza ?",translation:"¿Dónde está el MAAM desde la Plaza?",correct:"Sortez de la Plaza par Mitre. Le MAAM est sur la rue Mitre.",wrong:["Sortez de la Plaza par Zuviría. Le MAAM est sur la rue Zuviría.","Sortez de la Plaza par Caseros. Le MAAM est sur la rue Caseros."],hint:"El MAAM tiene dirección Mitre 77.",help:["à côté de","près de"]}),
+    mc({from:"plaza",to:"teatro",meters:90,question:"Où est le Teatro Provincial ?",translation:"¿Dónde está el Teatro Provincial?",correct:"Sortez de la Plaza par Zuviría. Le théâtre est sur la rue Zuviría.",wrong:["Sortez de la Plaza par Mitre. Le théâtre est sur la rue Mitre.","Sortez de la Plaza par Caseros. Le théâtre est sur la rue Caseros."],hint:"El Teatro Provincial está en Zuviría 70.",help:["à côté de","près de"]}),
+    mc({from:"cabildo",to:"catedral",meters:190,question:"Comment aller à la cathédrale ?",translation:"¿Cómo voy a la Catedral?",correct:"Traversez Caseros, traversez la Plaza et continuez jusqu'à la rue España.",wrong:["Traversez Caseros, suivez la rue Mitre et continuez jusqu'à la rue Córdoba.","Traversez Caseros, suivez la rue Zuviría et continuez jusqu'à la rue Lerma."],hint:"Catedral y Cabildo están en lados opuestos de la Plaza.",help:["traversez","en face de"]}),
+    mc({from:"plaza",to:"sanfran",meters:420,question:"Comment aller à San Francisco ?",translation:"¿Cómo voy a San Francisco?",correct:"Prenez la rue Caseros vers Córdoba et continuez jusqu'à l'angle de Córdoba.",wrong:["Prenez la rue España vers Córdoba et continuez jusqu'à l'angle de Córdoba.","Prenez la rue Caseros vers Mitre et continuez jusqu'à l'angle de Mitre."],hint:"San Francisco está en Córdoba 33 y Caseros.",help:["prenez la rue","au coin de","jusqu'à"]}),
+    mc({from:"teatro",to:"sanfran",meters:360,question:"Depuis le théâtre, comment aller à San Francisco ?",translation:"Desde el teatro, ¿cómo voy a San Francisco?",correct:"Suivez Zuviría jusqu'à Caseros, puis prenez Caseros jusqu'à Córdoba.",wrong:["Suivez Zuviría jusqu'à España, puis prenez España jusqu'à Córdoba.","Suivez Zuviría jusqu'à Caseros, puis prenez Caseros jusqu'à Mitre."],hint:"Primero llegá a Caseros y después seguí hasta Córdoba.",help:["depuis","jusqu'à","prenez la rue"]}),
+    mc({from:"maam",to:"cabildo",meters:210,question:"Depuis le MAAM, comment aller au Cabildo ?",translation:"Desde el MAAM, ¿cómo voy al Cabildo?",correct:"Suivez Mitre jusqu'à Caseros, puis prenez Caseros vers le Cabildo.",wrong:["Suivez Mitre jusqu'à España, puis prenez España vers le Cabildo.","Suivez Mitre jusqu'à Caseros, puis prenez Caseros vers San Francisco."],hint:"El Cabildo está sobre Caseros.",help:["depuis","jusqu'à","suivez la rue"]}),
+    mc({from:"sanfran",to:"plaza",meters:420,question:"Comment revenir à la Plaza 9 de Julio ?",translation:"¿Cómo vuelvo a la Plaza 9 de Julio?",correct:"Suivez Caseros depuis Córdoba jusqu'à Zuviría. La Plaza commence à Zuviría.",wrong:["Suivez España depuis Córdoba jusqu'à Zuviría. La Plaza commence à Zuviría.","Suivez Caseros depuis Córdoba jusqu'à Lerma. La Plaza commence à Lerma."],hint:"La Plaza termina sobre Zuviría en su lado este.",help:["depuis","jusqu'à"]}),
+    mc({from:"catedral",to:"teatro",meters:210,question:"Comment aller au Teatro Provincial ?",translation:"¿Cómo voy al Teatro Provincial?",correct:"Suivez España jusqu'à Zuviría, puis prenez Zuviría vers la Plaza.",wrong:["Suivez España jusqu'à Mitre, puis prenez Mitre vers la Plaza.","Suivez España jusqu'à Córdoba, puis prenez Córdoba vers Caseros."],hint:"El Teatro está en Zuviría 70.",help:["jusqu'à","prenez la rue"]})
   ]
 },
 {
-  title:"Où est… ?",
-  subtitle:"Ubicar lugares",
-  description:"Cerca, lejos, al lado, delante, detrás y puntos cardinales.",
-  tags:["à côté de","devant / derrière"],
-  questions:[
-    interpret({from:"plaza",to:"maam",meters:100,question:"Où est le MAAM ?",translation:"¿Dónde está el MAAM?",correct:"Il est à l'ouest de la Plaza.",wrong:["Il est à l'est de la Plaza.","Il est derrière le téléphérique."],hint:"El MAAM está a la izquierda de la Plaza.",help:["à l'ouest de","à l'est de"]}),
-    mc({from:"cabildo",to:"plaza",meters:120,question:"La Plaza est où ?",translation:"¿Dónde está la Plaza?",correct:"Elle est devant le Cabildo, vers le nord.",wrong:["Elle est derrière le marché.","Elle est très loin du centre."],hint:"Desde el Cabildo mirás hacia arriba.",help:["devant","au nord de"]}),
-    fill({from:"plaza",to:"catedral",meters:120,question:"La cathédrale est ___ de la Plaza.",translation:"La Catedral está ___ de la Plaza.",prompt:"La cathédrale est ___ de la Plaza.",choices:["au nord","au sud","à l'ouest"],correct:0,hint:"La Catedral está arriba de la Plaza.",help:["au nord de","au sud de"]}),
-    mc({from:"plaza",to:"teatro",meters:170,question:"Où se trouve le théâtre ?",translation:"¿Dónde se encuentra el teatro?",correct:"À l'est de la Plaza.",wrong:["À l'ouest de la Plaza.","Au sud du marché."],hint:"Está del lado derecho del croquis.",help:["à l'est de","à l'ouest de"]}),
-    mc({from:"maam",to:"plaza",meters:100,question:"La Plaza est loin du MAAM ?",translation:"¿La Plaza está lejos del MAAM?",correct:"Non, elle est juste à côté.",wrong:["Oui, elle est très loin.","Oui, il faut prendre un bus."],hint:"Están uno junto al otro.",help:["à côté de","près de"]}),
-    interpret({from:"sanfran",to:"cabildo",meters:420,question:"Le Cabildo est de quel côté ?",translation:"¿De qué lado está el Cabildo?",correct:"À l'ouest de San Francisco.",wrong:["À l'est de San Francisco.","Au nord du téléphérique."],hint:"La estrella está a la izquierda.",help:["à l'ouest de","à l'est de"]}),
-    fill({from:"mercado",to:"cabildo",meters:310,question:"Le Cabildo est ___ le Mercado et San Francisco.",translation:"El Cabildo está ___ el Mercado y San Francisco.",prompt:"Le Cabildo est ___ les deux lieux.",choices:["entre","derrière","loin de"],correct:0,hint:"Está ubicado en medio de ambos puntos.",help:["entre","derrière"]}),
-    mc({from:"teatro",to:"plaza",meters:170,question:"La Plaza est où depuis le théâtre ?",translation:"¿Dónde está la Plaza desde el teatro?",correct:"À l'ouest, juste à côté.",wrong:["À l'est, très loin.","Au sud du marché."],hint:"Desde el teatro, la Plaza está a la izquierda.",help:["depuis","à l'ouest de","à côté de"]}),
-    mc({from:"catedral",to:"cabildo",meters:380,question:"Le Cabildo est derrière la Plaza ?",translation:"¿El Cabildo está detrás de la Plaza?",correct:"Oui, il est au sud de la Plaza.",wrong:["Non, il est au nord de la cathédrale.","Non, il est à l'est du téléphérique."],hint:"Está debajo de la Plaza.",help:["derrière","au sud de"]}),
-    fill({from:"plaza",to:"maam",meters:100,question:"Le MAAM est ___ de la Plaza.",translation:"El MAAM está ___ de la Plaza.",prompt:"Le MAAM est ___ de la Plaza.",choices:["à côté","loin","derrière"],correct:0,hint:"Están pegados en el croquis.",help:["à côté de","loin de"]})
+  title:"Où est… ?",subtitle:"Ubicar con calles reales",description:"Reconocé en qué calle está cada lugar y qué calles rodean la Plaza 9 de Julio.",tags:["en face de","au coin de"],questions:[
+    mc({from:"plaza",to:"catedral",meters:90,question:"Sur quelle rue se trouve la cathédrale ?",translation:"¿En qué calle está la Catedral?",correct:"La cathédrale se trouve sur la rue España, en face de la Plaza.",wrong:["La cathédrale se trouve sur la rue Caseros, en face de la Plaza.","La cathédrale se trouve sur la rue Zuviría, à côté du théâtre."],hint:"Dirección: España 558.",help:["en face de"]}),
+    mc({from:"plaza",to:"maam",meters:90,question:"Sur quelle rue se trouve le MAAM ?",translation:"¿En qué calle está el MAAM?",correct:"Le MAAM se trouve sur la rue Mitre, à côté de la Plaza.",wrong:["Le MAAM se trouve sur la rue Zuviría, à côté de la Plaza.","Le MAAM se trouve sur la rue Caseros, en face de la Plaza."],hint:"Dirección: Mitre 77.",help:["à côté de"]}),
+    mc({from:"plaza",to:"teatro",meters:90,question:"Sur quelle rue se trouve le théâtre ?",translation:"¿En qué calle está el teatro?",correct:"Le théâtre se trouve sur la rue Zuviría, à côté de la Plaza.",wrong:["Le théâtre se trouve sur la rue Mitre, à côté de la Plaza.","Le théâtre se trouve sur la rue Caseros, en face de la Plaza."],hint:"Dirección: Zuviría 70.",help:["à côté de"]}),
+    mc({from:"plaza",to:"cabildo",meters:90,question:"Sur quelle rue se trouve le Cabildo ?",translation:"¿En qué calle está el Cabildo?",correct:"Le Cabildo se trouve sur la rue Caseros, en face de la Plaza.",wrong:["Le Cabildo se trouve sur la rue España, en face de la Plaza.","Le Cabildo se trouve sur la rue Mitre, à côté de la Plaza."],hint:"Dirección: Caseros 549.",help:["en face de"]}),
+    mc({from:"plaza",to:"sanfran",meters:420,question:"Où se trouve San Francisco ?",translation:"¿Dónde está San Francisco?",correct:"San Francisco se trouve à l'angle de Córdoba et Caseros.",wrong:["San Francisco se trouve à l'angle de Mitre et España.","San Francisco se trouve à l'angle de Zuviría et España."],hint:"Dirección oficial: Córdoba 33 y Caseros.",help:["au coin de"]}),
+    fill({from:"plaza",to:"plaza",meters:0,question:"La Plaza 9 de Julio est entre quelles rues ?",translation:"¿Entre qué calles está la Plaza 9 de Julio?",prompt:"La Plaza est entre Mitre, España, Zuviría et ___ .",choices:["Caseros","Córdoba","Lerma"],correct:0,hint:"El lado sur de la Plaza es Caseros.",help:["entre"]}),
+    interpret({from:"maam",to:"teatro",meters:190,question:"Le MAAM et le théâtre sont de quel côté de la Plaza ?",translation:"¿En qué lados de la Plaza están el MAAM y el teatro?",correct:"Le MAAM est côté Mitre et le théâtre côté Zuviría.",wrong:["Le MAAM est côté Zuviría et le théâtre côté Mitre.","Le MAAM est côté Caseros et le théâtre côté España."],hint:"MAAM: Mitre 77. Teatro: Zuviría 70.",help:["à côté de"]}),
+    interpret({from:"catedral",to:"cabildo",meters:190,question:"Quels bâtiments sont face à face ?",translation:"¿Qué edificios están enfrentados?",correct:"La cathédrale et le Cabildo, avec la Plaza entre les deux.",wrong:["Le MAAM et San Francisco, avec la Plaza entre les deux.","Le théâtre et San Francisco, avec la Plaza entre les deux."],hint:"Uno está sobre España y el otro sobre Caseros.",help:["en face de","entre"]}),
+    mc({from:"teatro",to:"plaza",meters:90,question:"Quelle rue borde la Plaza du côté du théâtre ?",translation:"¿Qué calle bordea la Plaza del lado del teatro?",correct:"La rue Zuviría borde la Plaza du côté du théâtre.",wrong:["La rue Mitre borde la Plaza du côté du théâtre.","La rue Córdoba borde la Plaza du côté du théâtre."],hint:"El Teatro está en Zuviría.",help:["à côté de"]}),
+    mc({from:"maam",to:"plaza",meters:90,question:"Quelle rue borde la Plaza du côté du MAAM ?",translation:"¿Qué calle bordea la Plaza del lado del MAAM?",correct:"La rue Mitre borde la Plaza du côté du MAAM.",wrong:["La rue Zuviría borde la Plaza du côté du MAAM.","La rue Caseros borde la Plaza du côté du MAAM."],hint:"El MAAM está en Mitre 77.",help:["à côté de"]})
   ]
 },
 {
-  title:"Comment y aller ?",
-  subtitle:"Calles, metros y transporte",
-  description:"Combiná indicaciones, distancias aproximadas y medios de transporte.",
-  tags:["à environ","à pied / en bus"],
-  questions:[
-    mc({from:"plaza",to:"mercado",meters:620,question:"Comment aller au Mercado San Miguel ?",translation:"¿Cómo voy al Mercado San Miguel?",correct:"Allez vers le sud-ouest, à environ 600 mètres.",wrong:["Allez au nord-est jusqu'à la cathédrale.","Continuez vers l'est jusqu'au téléphérique."],hint:"Está abajo y a la izquierda.",help:["à environ","au sud de","à l'ouest de"]}),
-    mc({from:"plaza",to:"sanfran",meters:650,question:"Comment aller à San Francisco ?",translation:"¿Cómo voy a San Francisco?",correct:"Suivez Caseros vers l'est.",wrong:["Suivez España vers l'ouest.","Allez vers le nord jusqu'à la cathédrale."],hint:"San Francisco está hacia el este sobre el eje de Caseros.",help:["le long de","à l'est de"]}),
-    fill({from:"maam",to:"teatro",meters:430,question:"Traversez la Plaza et allez ___ .",translation:"Cruce la Plaza y vaya ___ .",prompt:"Traversez la Plaza et allez ___ .",choices:["à droite","à gauche","vers le sud"],correct:0,hint:"El teatro está al otro lado de la Plaza, hacia la derecha.",help:["traversez","à droite"]}),
-    mc({from:"catedral",to:"cabildo",meters:380,question:"Comment aller au Cabildo ?",translation:"¿Cómo voy al Cabildo?",correct:"Continuez vers le sud et traversez la Plaza.",wrong:["Allez vers le nord.","Tournez vers l'est jusqu'au téléphérique."],hint:"Hay que bajar atravesando el centro.",help:["continuez","traversez","au sud de"]}),
-    mc({from:"plaza",to:"teleferico",meters:1100,transport:"bus",proximity:"loin",question:"Le téléphérique est loin ?",translation:"¿El Teleférico está lejos?",correct:"C'est plus loin. Vous pouvez prendre un bus.",wrong:["C'est à côté de la Plaza.","C'est derrière le MAAM."],hint:"Es uno de los trayectos más largos.",help:["loin de","en bus"]}),
-    fill({from:"teatro",to:"sanfran",meters:360,question:"Continuez ___ San Francisco.",translation:"Continúe ___ San Francisco.",prompt:"Continuez ___ San Francisco.",choices:["jusqu'à","depuis","derrière"],correct:0,hint:"La palabra pedida significa «hasta».",help:["jusqu'à","depuis"]}),
-    mc({from:"mercado",to:"plaza",meters:620,question:"Combien de mètres jusqu'à la Plaza ?",translation:"¿Cuántos metros hay hasta la Plaza?",correct:"À environ 600 mètres.",wrong:["À environ 6 kilomètres.","À environ 60 kilomètres."],hint:"Mirá la cápsula de distancia.",help:["à environ","jusqu'à"]}),
-    mc({from:"teleferico",to:"plaza",meters:1100,transport:"taxi",proximity:"loin",question:"Je suis pressé. Comment aller à la Plaza ?",translation:"Estoy apurado. ¿Cómo voy a la Plaza?",correct:"Vous pouvez prendre un taxi jusqu'au centre.",wrong:["Prenez l'avion.","Marchez vers l'est jusqu'à San Francisco."],hint:"La persona está apurada y el trayecto es largo.",help:["en taxi","jusqu'à"]}),
-    fill({from:"plaza",to:"cabildo",meters:160,question:"Bus ou à pied pour le Cabildo ?",translation:"¿Colectivo o a pie para el Cabildo?",prompt:"C'est tout près. Allez-y ___ .",choices:["à pied","en bus","en taxi"],correct:0,hint:"La distancia es muy corta.",help:["à pied","tout près"]}),
-    mc({from:"sanfran",to:"teleferico",meters:700,transport:"bike",proximity:"moyen",question:"Je suis à vélo. Le téléphérique est loin ?",translation:"Estoy en bicicleta. ¿El Teleférico está lejos?",correct:"Non, c'est un trajet raisonnable à vélo.",wrong:["Oui, c'est à vingt kilomètres.","Il est à côté du MAAM."],hint:"El transporte indicado es bicicleta.",help:["à vélo","loin de"]})
+  title:"Comment y aller ?",subtitle:"Recorridos por calles",description:"Elegí recorridos completos: qué calle seguir, dónde cambiar y qué referencia usar.",tags:["jusqu'à","prenez la rue"],questions:[
+    mc({from:"catedral",to:"maam",meters:180,question:"Vous êtes devant la cathédrale. Quel itinéraire est correct ?",translation:"Está frente a la Catedral. ¿Qué recorrido es correcto?",correct:"Suivez España jusqu'à Mitre, puis prenez Mitre vers la Plaza jusqu'au MAAM.",wrong:["Suivez España jusqu'à Zuviría, puis prenez Zuviría vers la Plaza jusqu'au MAAM.","Suivez España jusqu'à Córdoba, puis prenez Córdoba vers Caseros jusqu'au MAAM."],hint:"El MAAM queda sobre Mitre.",help:["jusqu'à","prenez la rue"]}),
+    mc({from:"catedral",to:"cabildo",meters:190,question:"Quel itinéraire traverse vraiment la Plaza ?",translation:"¿Qué recorrido realmente atraviesa la Plaza?",correct:"Traversez España, traversez la Plaza du nord au sud et sortez sur Caseros.",wrong:["Traversez España, longez la Plaza par Mitre et sortez sur España.","Traversez Caseros, longez la Plaza par Zuviría et sortez sur Córdoba."],hint:"De Catedral a Cabildo se cruza de España a Caseros.",help:["traversez"]}),
+    mc({from:"plaza",to:"sanfran",meters:420,question:"Quelle rue faut-il suivre vers San Francisco ?",translation:"¿Qué calle hay que seguir hacia San Francisco?",correct:"Suivez Caseros vers Córdoba; San Francisco est à l'angle de Córdoba.",wrong:["Suivez España vers Córdoba; San Francisco est à l'angle de Córdoba.","Suivez Caseros vers Mitre; San Francisco est à l'angle de Mitre."],hint:"San Francisco está en Caseros y Córdoba.",help:["au coin de","suivez la rue"]}),
+    mc({from:"teatro",to:"maam",meters:190,question:"Comment passer du théâtre au MAAM ?",translation:"¿Cómo paso del teatro al MAAM?",correct:"Traversez Zuviría, traversez la Plaza et sortez par Mitre vers le MAAM.",wrong:["Traversez Zuviría, longez Caseros et sortez par Córdoba vers le MAAM.","Traversez Mitre, traversez la Plaza et sortez par Zuviría vers le MAAM."],hint:"Están en lados opuestos de la Plaza.",help:["traversez"]}),
+    mc({from:"maam",to:"catedral",meters:180,question:"Comment aller du MAAM à la cathédrale ?",translation:"¿Cómo voy del MAAM a la Catedral?",correct:"Remontez Mitre jusqu'à España, puis suivez España jusqu'à la cathédrale.",wrong:["Remontez Zuviría jusqu'à España, puis suivez España jusqu'à la cathédrale.","Remontez Mitre jusqu'à Caseros, puis suivez Caseros jusqu'à la cathédrale."],hint:"Primero Mitre, después España.",help:["jusqu'à","suivez la rue"]}),
+    mc({from:"cabildo",to:"sanfran",meters:400,question:"Comment aller du Cabildo à San Francisco ?",translation:"¿Cómo voy del Cabildo a San Francisco?",correct:"Suivez Caseros vers Córdoba et continuez jusqu'à l'angle de Córdoba.",wrong:["Suivez España vers Córdoba et continuez jusqu'à l'angle de Córdoba.","Suivez Caseros vers Mitre et continuez jusqu'à l'angle de Mitre."],hint:"Los dos están vinculados por Caseros.",help:["jusqu'à","au coin de"]}),
+    fill({from:"teatro",to:"sanfran",meters:360,question:"Complétez l'itinéraire.",translation:"Complete el recorrido.",prompt:"Suivez Zuviría jusqu'à Caseros, puis prenez ___ jusqu'à Córdoba.",choices:["Caseros","España","Mitre"],correct:0,hint:"San Francisco está sobre Caseros.",help:["jusqu'à","prenez la rue"]}),
+    fill({from:"catedral",to:"maam",meters:180,question:"Complétez l'itinéraire.",translation:"Complete el recorrido.",prompt:"Suivez España jusqu'à ___, puis prenez cette rue vers la Plaza.",choices:["Mitre","Zuviría","Córdoba"],correct:0,hint:"El MAAM está en Mitre 77.",help:["jusqu'à"]}),
+    fill({from:"catedral",to:"cabildo",meters:190,question:"Complétez l'itinéraire.",translation:"Complete el recorrido.",prompt:"Traversez España, traversez la Plaza et sortez sur ___ .",choices:["Caseros","Mitre","Zuviría"],correct:0,hint:"El Cabildo está en Caseros 549.",help:["traversez"]}),
+    mc({from:"sanfran",to:"teatro",meters:360,question:"Quel trajet ramène au Teatro Provincial ?",translation:"¿Qué recorrido vuelve al Teatro Provincial?",correct:"Suivez Caseros jusqu'à Zuviría, puis prenez Zuviría vers le théâtre.",wrong:["Suivez España jusqu'à Zuviría, puis prenez Zuviría vers le théâtre.","Suivez Caseros jusqu'à Mitre, puis prenez Mitre vers le théâtre."],hint:"Teatro Provincial: Zuviría 70.",help:["jusqu'à","prenez la rue"]})
   ]
 },
 {
-  title:"Guide touristique",
-  subtitle:"Mezclá todo",
-  description:"Situaciones completas para usar direcciones como un pequeño guía turístico.",
-  tags:["depuis / jusqu'à","itinéraire complet"],
-  questions:[
-    mc({from:"plaza",to:"sanfran",meters:650,question:"Depuis la Plaza, comment aller à San Francisco ?",translation:"Desde la Plaza, ¿cómo voy a San Francisco?",correct:"Suivez Caseros vers l'est jusqu'à San Francisco.",wrong:["Suivez España vers l'ouest jusqu'au MAAM.","Allez vers le sud jusqu'au Mercado."],hint:"San Francisco está hacia el este.",help:["depuis","jusqu'à","à l'est de"]}),
-    fill({from:"sanfran",to:"plaza",meters:650,question:"Comment revenir au centre ?",translation:"¿Cómo vuelvo al centro?",prompt:"Continuez vers ___ jusqu'à la Plaza.",choices:["l'ouest","l'est","le sud"],correct:0,hint:"Desde San Francisco hay que volver hacia la izquierda.",help:["à l'ouest de","jusqu'à"]}),
-    interpret({from:"maam",to:"catedral",meters:280,question:"Où finit ce trajet ?",translation:"¿Dónde termina este recorrido?",correct:"À la cathédrale, au nord-est du MAAM.",wrong:["Au Mercado, au sud-ouest.","Au téléphérique, à l'est."],hint:"La estrella está arriba y a la derecha.",help:["au nord de","à l'est de"]}),
-    mc({from:"catedral",to:"cabildo",meters:380,question:"Expliquez le trajet jusqu'au Cabildo.",translation:"Explique el recorrido hasta el Cabildo.",correct:"Allez tout droit vers le sud, traversez la Plaza et continuez jusqu'au Cabildo.",wrong:["Tournez vers l'est jusqu'au téléphérique.","Allez vers le nord derrière la cathédrale."],hint:"El recorrido cruza la Plaza de arriba hacia abajo.",help:["tout droit","traversez","jusqu'à"]}),
-    fill({from:"mercado",to:"cabildo",meters:310,question:"Le Cabildo est ___ le Mercado et San Francisco.",translation:"El Cabildo está ___ el Mercado y San Francisco.",prompt:"Le Cabildo est ___ les deux.",choices:["entre","derrière","avant"],correct:0,hint:"Está en el medio de los dos.",help:["entre","avant","derrière"]}),
-    mc({from:"teleferico",to:"teatro",meters:720,question:"Nous sommes ici. Où est le théâtre ?",translation:"Estamos acá. ¿Dónde está el teatro?",correct:"Plus à l'ouest et un peu au sud.",wrong:["Plus à l'est.","Derrière le Mercado."],hint:"Mirá la posición relativa de valijita y estrella.",help:["à l'ouest de","au sud de"]}),
-    mc({from:"plaza",to:"mercado",meters:620,question:"Le marché est près ou loin ?",translation:"¿El mercado está cerca o lejos?",correct:"Il est un peu plus loin, mais on peut y aller à pied.",wrong:["Il est juste à côté de la Plaza.","Il est à dix kilomètres."],hint:"No está pegado, pero sigue siendo caminable.",help:["loin de","à pied"]}),
-    mc({from:"plaza",to:"teleferico",meters:1100,transport:"bus",proximity:"loin",question:"Quel transport conseillez-vous ?",translation:"¿Qué transporte recomienda?",correct:"Je conseille le bus.",wrong:["Je conseille l'avion.","Je conseille de ne pas bouger."],hint:"Es un trayecto más largo y la ficha muestra colectivo.",help:["en bus"]}),
-    fill({from:"teatro",to:"plaza",meters:170,question:"La Plaza est ___ du théâtre.",translation:"La Plaza está ___ del teatro.",prompt:"La Plaza est ___ du théâtre.",choices:["à l'ouest","à l'est","au sud"],correct:0,hint:"La Plaza está a la izquierda del teatro.",help:["à l'ouest de","à l'est de"]}),
-    mc({from:"cabildo",to:"catedral",meters:380,question:"Donnez une indication complète.",translation:"Dé una indicación completa.",correct:"Depuis le Cabildo, allez vers le nord, traversez la Plaza et continuez jusqu'à la cathédrale.",wrong:["Depuis le Cabildo, allez vers le sud jusqu'au Mercado.","Tournez vers l'est jusqu'au téléphérique."],hint:"Hay que ir hacia arriba cruzando la Plaza.",help:["depuis","au nord de","traversez","jusqu'à"]})
+  title:"Guide touristique",subtitle:"Indicaciones completas",description:"Combiná calles, cruces, esquinas y referencias del centro histórico.",tags:["itinéraire complet","repères"],questions:[
+    mc({from:"catedral",to:"sanfran",meters:500,question:"Un touriste veut aller de la cathédrale à San Francisco. Que dites-vous ?",translation:"Un turista quiere ir de la Catedral a San Francisco. ¿Qué le dice?",correct:"Suivez España jusqu'à Zuviría, descendez jusqu'à Caseros et continuez par Caseros jusqu'à Córdoba.",wrong:["Suivez España jusqu'à Mitre, descendez jusqu'à Caseros et continuez par Caseros jusqu'à Mitre.","Suivez Caseros jusqu'à Zuviría, remontez jusqu'à España et continuez par España jusqu'à Córdoba."],hint:"El destino final es la esquina Córdoba-Caseros.",help:["jusqu'à","continuez"]}),
+    mc({from:"sanfran",to:"catedral",meters:500,question:"Comment revenir de San Francisco à la cathédrale ?",translation:"¿Cómo vuelvo de San Francisco a la Catedral?",correct:"Suivez Caseros jusqu'à Zuviría, remontez jusqu'à España et suivez España vers la cathédrale.",wrong:["Suivez España jusqu'à Zuviría, descendez jusqu'à Caseros et suivez Caseros vers la cathédrale.","Suivez Caseros jusqu'à Mitre, descendez jusqu'à Alvarado et suivez Alvarado vers la cathédrale."],hint:"Volvés por Caseros hasta Zuviría y después a España.",help:["jusqu'à","suivez la rue"]}),
+    mc({from:"maam",to:"teatro",meters:190,question:"Donnez une indication simple du MAAM au théâtre.",translation:"Dé una indicación simple del MAAM al teatro.",correct:"Traversez Mitre, traversez la Plaza et sortez par Zuviría; le théâtre est juste là.",wrong:["Traversez Zuviría, traversez la Plaza et sortez par Mitre; le théâtre est juste là.","Traversez Caseros, traversez la Plaza et sortez par España; le théâtre est juste là."],hint:"MAAM y Teatro están enfrentados a través de la Plaza.",help:["traversez","en face de"]}),
+    mc({from:"cabildo",to:"maam",meters:210,question:"Quel trajet utilisez-vous pour aller au MAAM ?",translation:"¿Qué recorrido usa para ir al MAAM?",correct:"Suivez Caseros jusqu'à Mitre, puis remontez Mitre jusqu'au MAAM.",wrong:["Suivez Caseros jusqu'à Zuviría, puis remontez Zuviría jusqu'au MAAM.","Suivez España jusqu'à Mitre, puis remontez Mitre jusqu'au MAAM."],hint:"MAAM: Mitre 77.",help:["jusqu'à"]}),
+    interpret({from:"catedral",to:"cabildo",meters:190,question:"Que fait la valise dans ce trajet ?",translation:"¿Qué hace la valijita en este recorrido?",correct:"Elle traverse España, puis la Plaza, puis Caseros.",wrong:["Elle suit España jusqu'à Córdoba, puis traverse Caseros.","Elle suit Mitre jusqu'à Caseros, puis traverse Zuviría."],hint:"La ruta corta atraviesa la Plaza de norte a sur.",help:["traversez"]}),
+    interpret({from:"plaza",to:"sanfran",meters:420,question:"Quel repère annonce l'arrivée à San Francisco ?",translation:"¿Qué referencia anuncia la llegada a San Francisco?",correct:"L'angle de la rue Caseros et de la rue Córdoba.",wrong:["L'angle de la rue España et de la rue Mitre.","L'angle de la rue España et de la rue Zuviría."],hint:"Dirección: Córdoba 33 y Caseros.",help:["au coin de"]}),
+    fill({from:"plaza",to:"sanfran",meters:420,question:"Complétez l'indication.",translation:"Complete la indicación.",prompt:"Suivez la rue Caseros jusqu'à la rue ___ .",choices:["Córdoba","Mitre","España"],correct:0,hint:"La Basílica está en Córdoba 33.",help:["jusqu'à"]}),
+    fill({from:"maam",to:"catedral",meters:180,question:"Complétez l'indication.",translation:"Complete la indicación.",prompt:"Suivez Mitre jusqu'à ___, puis prenez cette rue vers la cathédrale.",choices:["España","Caseros","Córdoba"],correct:0,hint:"La Catedral está en España 558.",help:["jusqu'à"]}),
+    mc({from:"teatro",to:"cabildo",meters:200,question:"Comment aller du théâtre au Cabildo sans donner une direction vague ?",translation:"¿Cómo ir del teatro al Cabildo sin dar una dirección vaga?",correct:"Suivez Zuviría jusqu'à Caseros, puis suivez Caseros jusqu'au Cabildo.",wrong:["Suivez Mitre jusqu'à España, puis suivez España jusqu'au Cabildo.","Suivez Córdoba jusqu'à Caseros, puis suivez Caseros jusqu'au Cabildo."],hint:"Nombrá Zuviría y Caseros.",help:["suivez la rue","jusqu'à"]}),
+    mc({from:"catedral",to:"maam",meters:180,question:"Quelle réponse donne le meilleur repère urbain ?",translation:"¿Qué respuesta da la mejor referencia urbana?",correct:"Allez par España jusqu'à Mitre, puis prenez Mitre: le MAAM est à côté de la Plaza.",wrong:["Allez par España jusqu'à Zuviría, puis prenez Zuviría: le MAAM est à côté de la Plaza.","Allez par Caseros jusqu'à Mitre, puis prenez Mitre: le MAAM est à côté de la Plaza."],hint:"La calle correcta para el MAAM es Mitre.",help:["à côté de","jusqu'à"]})
   ]
 }];
 
 const FREE_ROUTES = {
-  "plaza-sanfran":"Depuis la Plaza, suivez la rue Caseros vers l'est et continuez jusqu'à San Francisco.",
-  "plaza-catedral":"Depuis la Plaza, allez vers le nord. La cathédrale est tout près, devant vous.",
-  "plaza-maam":"Depuis la Plaza, allez vers l'ouest. Le MAAM est juste à côté.",
-  "plaza-cabildo":"Depuis la Plaza, allez vers le sud jusqu'au Cabildo.",
-  "maam-teatro":"Depuis le MAAM, traversez la Plaza vers l'est. Le théâtre est de l'autre côté.",
-  "catedral-cabildo":"Depuis la cathédrale, allez tout droit vers le sud, traversez la Plaza et continuez jusqu'au Cabildo.",
-  "mercado-plaza":"Depuis le Mercado, allez vers le nord-est jusqu'à la Plaza 9 de Julio.",
-  "sanfran-plaza":"Depuis San Francisco, suivez Caseros vers l'ouest jusqu'à la Plaza.",
-  "teleferico-plaza":"Depuis le téléphérique, allez vers l'ouest jusqu'au centre historique.",
-  "cabildo-catedral":"Depuis le Cabildo, allez vers le nord, traversez la Plaza et continuez jusqu'à la cathédrale."
+  "catedral-maam":"Depuis la cathédrale, suivez la rue España jusqu'à Mitre, puis prenez la rue Mitre vers la Plaza. Le MAAM est sur Mitre.",
+  "maam-catedral":"Depuis le MAAM, remontez la rue Mitre jusqu'à España, puis suivez España jusqu'à la cathédrale.",
+  "catedral-cabildo":"Depuis la cathédrale, traversez la rue España, traversez la Plaza 9 de Julio et continuez jusqu'à Caseros. Le Cabildo est en face.",
+  "cabildo-catedral":"Depuis le Cabildo, traversez Caseros, traversez la Plaza 9 de Julio et continuez jusqu'à España. La cathédrale est en face.",
+  "plaza-maam":"Sortez de la Plaza par Mitre. Le MAAM est sur la rue Mitre.",
+  "plaza-teatro":"Sortez de la Plaza par Zuviría. Le Teatro Provincial est sur la rue Zuviría.",
+  "maam-teatro":"Depuis le MAAM, traversez Mitre, traversez la Plaza et sortez par Zuviría. Le théâtre est de l'autre côté.",
+  "teatro-maam":"Depuis le théâtre, traversez Zuviría, traversez la Plaza et sortez par Mitre. Le MAAM est de l'autre côté.",
+  "plaza-sanfran":"Depuis la Plaza, prenez la rue Caseros vers Córdoba et continuez jusqu'à l'angle de Córdoba. San Francisco est là.",
+  "sanfran-plaza":"Depuis San Francisco, suivez la rue Caseros depuis Córdoba jusqu'à Zuviría. La Plaza commence à Zuviría.",
+  "teatro-sanfran":"Depuis le théâtre, suivez Zuviría jusqu'à Caseros, puis prenez Caseros jusqu'à Córdoba.",
+  "sanfran-teatro":"Depuis San Francisco, suivez Caseros jusqu'à Zuviría, puis prenez Zuviría vers le théâtre.",
+  "maam-cabildo":"Depuis le MAAM, suivez Mitre jusqu'à Caseros, puis prenez Caseros vers le Cabildo.",
+  "cabildo-maam":"Depuis le Cabildo, suivez Caseros jusqu'à Mitre, puis remontez Mitre jusqu'au MAAM."
 };
