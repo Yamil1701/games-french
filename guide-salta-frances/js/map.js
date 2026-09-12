@@ -1,9 +1,7 @@
 window.GameMap = (() => {
   const coords = Object.fromEntries(Object.entries(PLACES).map(([k,p])=>[k,[p.x,p.y]]));
 
-  function pct(x, axis){
-    return axis === "x" ? `${x/10}%` : `${x/7.6}%`;
-  }
+  function pct(x, axis){ return axis === "x" ? `${x/10}%` : `${x/7.6}%`; }
 
   function setMarker(marker, placeId){
     const [x,y] = coords[placeId];
@@ -11,19 +9,24 @@ window.GameMap = (() => {
     marker.style.top = pct(y,"y");
   }
 
+  // Red peatonal del sector trabajado en el juego.
+  // Orden este-oeste verificado en el plano turístico oficial 2026:
+  // Mitre → Zuviría → Buenos Aires → Córdoba → Lerma.
+  // La Plaza está limitada por Mitre / España / Zuviría / Caseros.
   const N = {
     catedral:[385,150], maam:[205,340], plaza:[385,340], teatro:[555,340], cabildo:[385,525], sanfran:[870,390],
-    esp_mitre:[270,220], esp_mid:[385,220], esp_zuviria:[500,220], esp_cordoba:[820,220], esp_lerma:[930,220],
-    mit_maam:[270,340], mit_caseros:[270,455], zuv_teatro:[500,340], zuv_caseros:[500,455],
-    cas_mid:[385,455], cas_cordoba:[820,455], cas_lerma:[930,455],
+    esp_mitre:[270,220], esp_mid:[385,220], esp_zuviria:[500,220], esp_bsas:[660,220], esp_cordoba:[820,220], esp_lerma:[930,220],
+    mit_maam:[270,340], mit_caseros:[270,455],
+    zuv_teatro:[500,340], zuv_caseros:[500,455],
+    cas_mid:[385,455], cas_bsas:[660,455], cas_cordoba:[820,455], cas_lerma:[930,455],
     p_n:[385,252], p_w:[300,340], p_e:[470,340], p_s:[385,428]
   };
 
   const NODE_META = {
     esp_mitre:{intersection:["España","Mitre"]}, esp_zuviria:{intersection:["España","Zuviría"]},
-    esp_cordoba:{intersection:["España","Córdoba"]}, esp_lerma:{intersection:["España","Lerma"]},
+    esp_bsas:{intersection:["España","Buenos Aires"]}, esp_cordoba:{intersection:["España","Córdoba"]}, esp_lerma:{intersection:["España","Lerma"]},
     mit_caseros:{intersection:["Mitre","Caseros"]}, zuv_caseros:{intersection:["Zuviría","Caseros"]},
-    cas_cordoba:{intersection:["Caseros","Córdoba"]}, cas_lerma:{intersection:["Caseros","Lerma"]},
+    cas_bsas:{intersection:["Caseros","Buenos Aires"]}, cas_cordoba:{intersection:["Caseros","Córdoba"]}, cas_lerma:{intersection:["Caseros","Lerma"]},
     esp_mid:{intersection:["España"]}, mit_maam:{intersection:["Mitre"]}, zuv_teatro:{intersection:["Zuviría"]}, cas_mid:{intersection:["Caseros"]}
   };
 
@@ -33,11 +36,13 @@ window.GameMap = (() => {
     (graph[b] ||= []).push({to:a,label,type});
   }
 
-  edge("esp_mitre","esp_mid","España"); edge("esp_mid","esp_zuviria","España"); edge("esp_zuviria","esp_cordoba","España"); edge("esp_cordoba","esp_lerma","España");
+  edge("esp_mitre","esp_mid","España"); edge("esp_mid","esp_zuviria","España");
+  edge("esp_zuviria","esp_bsas","España"); edge("esp_bsas","esp_cordoba","España"); edge("esp_cordoba","esp_lerma","España");
   edge("esp_mitre","mit_maam","Mitre"); edge("mit_maam","mit_caseros","Mitre");
   edge("esp_zuviria","zuv_teatro","Zuviría"); edge("zuv_teatro","zuv_caseros","Zuviría");
-  edge("mit_caseros","cas_mid","Caseros"); edge("cas_mid","zuv_caseros","Caseros"); edge("zuv_caseros","cas_cordoba","Caseros"); edge("cas_cordoba","cas_lerma","Caseros");
-  edge("esp_cordoba","cas_cordoba","Córdoba"); edge("esp_lerma","cas_lerma","Lerma");
+  edge("mit_caseros","cas_mid","Caseros"); edge("cas_mid","zuv_caseros","Caseros");
+  edge("zuv_caseros","cas_bsas","Caseros"); edge("cas_bsas","cas_cordoba","Caseros"); edge("cas_cordoba","cas_lerma","Caseros");
+  edge("esp_bsas","cas_bsas","Buenos Aires"); edge("esp_cordoba","cas_cordoba","Córdoba"); edge("esp_lerma","cas_lerma","Lerma");
 
   edge("catedral","esp_mid","Acceso Catedral","access"); edge("maam","mit_maam","Acceso MAAM","access");
   edge("teatro","zuv_teatro","Acceso Teatro","access"); edge("cabildo","cas_mid","Acceso Cabildo","access");
@@ -55,14 +60,16 @@ window.GameMap = (() => {
     "maam|catedral":["maam","mit_maam","esp_mitre","esp_mid","catedral"],
     "catedral|teatro":["catedral","esp_mid","esp_zuviria","zuv_teatro","teatro"],
     "teatro|catedral":["teatro","zuv_teatro","esp_zuviria","esp_mid","catedral"],
-    "plaza|sanfran":["plaza","p_s","cas_mid","zuv_caseros","cas_cordoba","sanfran"],
-    "sanfran|plaza":["sanfran","cas_cordoba","zuv_caseros","cas_mid","p_s","plaza"],
-    "teatro|sanfran":["teatro","zuv_teatro","zuv_caseros","cas_cordoba","sanfran"],
-    "sanfran|teatro":["sanfran","cas_cordoba","zuv_caseros","zuv_teatro","teatro"],
+    "plaza|sanfran":["plaza","p_s","cas_mid","zuv_caseros","cas_bsas","cas_cordoba","sanfran"],
+    "sanfran|plaza":["sanfran","cas_cordoba","cas_bsas","zuv_caseros","cas_mid","p_s","plaza"],
+    "teatro|sanfran":["teatro","zuv_teatro","zuv_caseros","cas_bsas","cas_cordoba","sanfran"],
+    "sanfran|teatro":["sanfran","cas_cordoba","cas_bsas","zuv_caseros","zuv_teatro","teatro"],
     "maam|teatro":["maam","mit_maam","p_w","plaza","p_e","zuv_teatro","teatro"],
     "teatro|maam":["teatro","zuv_teatro","p_e","plaza","p_w","mit_maam","maam"],
     "maam|cabildo":["maam","mit_maam","mit_caseros","cas_mid","cabildo"],
-    "cabildo|maam":["cabildo","cas_mid","mit_caseros","mit_maam","maam"]
+    "cabildo|maam":["cabildo","cas_mid","mit_caseros","mit_maam","maam"],
+    "catedral|sanfran":["catedral","esp_mid","esp_zuviria","zuv_teatro","zuv_caseros","cas_bsas","cas_cordoba","sanfran"],
+    "sanfran|catedral":["sanfran","cas_cordoba","cas_bsas","zuv_caseros","zuv_teatro","esp_zuviria","esp_mid","catedral"]
   };
 
   function edgeBetween(a,b){ return (graph[a]||[]).find(e=>e.to===b) || null; }
@@ -135,7 +142,6 @@ window.GameMap = (() => {
     line.classList.add("visible");
     return route;
   }
-
   function clearRoute(line){line.classList.remove("visible");line.setAttribute("points","");}
 
   async function animateSuitcase(marker,points,duration=1500){
